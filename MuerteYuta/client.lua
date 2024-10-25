@@ -12,12 +12,32 @@ Citizen.CreateThread(function()
         if isObservedByCamera then
             -- Mostrar mensaje cuando la cámara detecta al jugador
             ShowNotification("La cámara te está observando")
+        else
+            -- Mostrar mensaje cuando no hay cámaras observando
+            ShowNotification("No hay cámaras observándote")
         end
         
-        -- Verificar si el jugador está disparando
+        -- Verificar varias acciones del jugador
         local isShooting = IsPedShooting(playerPed)
+        local isMeleeCombat = IsPedInMeleeCombat(playerPed)
+        local isAiming = IsPlayerFreeAiming(PlayerId())
+        local isInVehicle = IsPedInAnyVehicle(playerPed, false)
+        local vehicleSpeed = 0
         
-        if isObservedByCamera and isShooting then
+        if isInVehicle then
+            local vehicle = GetVehiclePedIsIn(playerPed, false)
+            vehicleSpeed = GetEntitySpeed(vehicle) * 3.6 -- Convertir a km/h
+        end
+        
+        local isSpeedingInVehicle = isInVehicle and vehicleSpeed > 120 -- Ajusta el límite de velocidad según tus necesidades
+        
+        -- Verificar si el jugador está disparando en un área
+        local isShootingInArea = IsPedShootingInArea(playerPed, playerCoords.x - 5.0, playerCoords.y - 5.0, playerCoords.z - 5.0, playerCoords.x + 5.0, playerCoords.y + 5.0, playerCoords.z + 5.0, false, true)
+
+        -- Verificar si se cumple alguna de las condiciones para activar el nivel de búsqueda
+        local shouldActivateWantedLevel = isShooting or isMeleeCombat or isAiming or isSpeedingInVehicle or isShootingInArea
+        
+        if isObservedByCamera and shouldActivateWantedLevel then
             -- Reactivar el nivel de búsqueda
             SetMaxWantedLevel(5) -- Puedes ajustar este valor según tus necesidades
         else
