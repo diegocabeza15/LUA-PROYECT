@@ -12,7 +12,7 @@ window.addEventListener('message', function (event) {
         return window.dispatchEvent(new MessageEvent('message', { data: { type: 'focusLost' } }));
     }
     if (event.data.type === "focusLost") {
-        document.body.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        document.body.style.backgroundColor = 'rgba(0, 0, 0, 0)';
     }
 });
 

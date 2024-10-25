@@ -140,11 +140,4 @@ RegisterNUICallback('close', function(data, cb)
     cb('ok')
 end)
 
--- Mensaje de bienvenida
-AddEventHandler('playerSpawned', function()
-    TriggerEvent('chat:addMessage', {
-        color = {0, 255, 0},
-        multiline = true,
-        args = {"BIENVENIDO", "Usa /ayuda para ver la lista de comandos disponibles."}
-    })
-end)
+
