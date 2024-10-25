@@ -91,7 +91,7 @@ Citizen.CreateThread(function()
     local blip = AddBlipForCoord(-1806.6305, 450.4791, 128.5119)
 
     -- Configurar el blip
-    SetBlipSprite(blip, 1) -- Ícono del blip
+    SetBlipSprite(blip, 567) -- Ícono del blip
     SetBlipDisplay(blip, 4) -- Tipo de display
     SetBlipScale(blip, 1.0) -- Escala del blip
     SetBlipColour(blip, 2) -- Color del blip (2 = verde)
