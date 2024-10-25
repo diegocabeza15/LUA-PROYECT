@@ -7,21 +7,19 @@ local comandos = {
     {nombre = "/restuarar",descripcion= "Te lo deja ready para pistear"}
 }
 
--- Función para mostrar la ayuda
+-- Función para mostrar la ayuda en un panel personalizado
 local function MostrarAyuda()
-    TriggerEvent('chat:addMessage', {
-        color = {255, 255, 0},
-        multiline = true,
-        args = {"AYUDA", "Lista de comandos disponibles:"}
-    })
-    
+    local comandosTexto = "Lista de comandos disponibles:\n"
     for _, comando in ipairs(comandos) do
-        TriggerEvent('chat:addMessage', {
-            color = {255, 255, 255},
-            multiline = true,
-            args = {"", comando.nombre .. " - " .. comando.descripcion}
-        })
+        comandosTexto = comandosTexto .. comando.nombre .. " - " .. comando.descripcion .. "\n"
     end
+
+    -- Enviar mensaje al NUI para mostrar el panel
+    SetNuiFocus(true, true) -- Habilitar el enfoque en el NUI
+    SendNUIMessage({
+        type = "showCommands",
+        commands = comandosTexto
+    })
 end
 
 -- Función para curar al jugador
@@ -138,6 +136,12 @@ end, false)
 RegisterCommand("restuarar", function()
     Restuarar()
 end, false)
+
+-- Evento para cerrar el panel
+RegisterNUICallback('close', function(data, cb)
+    SetNuiFocus(false, false) -- Deshabilitar el enfoque en el NUI
+    cb('ok')
+end)
 
 -- Mensaje de bienvenida
 AddEventHandler('playerSpawned', function()
