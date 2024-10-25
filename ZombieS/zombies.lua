@@ -64,6 +64,9 @@ Citizen.CreateThread(function()-- Will only work in it's own while loop
     end
 end)
 
+local MAX_ZOMBIES = 50 -- Aumentar la cantidad máxima de zombis
+local ZOMBIE_RESPAWN_TIME = 5000 -- Tiempo de respawn en milisegundos
+
 local function handleZombieDeletion()
     for _, zone in pairs(SafeZones) do
         local Blip = AddBlipForRadius(zone.x, zone.y, zone.z, zone.radius)
@@ -77,8 +80,10 @@ local function handleZombieDeletion()
 
         for _, zone in pairs(SafeZones) do
             local Handler, Zombie = FindFirstPed()
+            local zombieCount = 0 -- Contador de zombis en la zona
             repeat
                 if IsPedHuman(Zombie) and not IsPedAPlayer(Zombie) and not IsPedDeadOrDying(Zombie, true) then
+                    zombieCount = zombieCount + 1 -- Incrementar el contador de zombis
                     local pedcoords = GetEntityCoords(Zombie)
                     local zonecoords = vector3(zone.x, zone.y, zone.z)
                     local distance = #(zonecoords - pedcoords)
@@ -91,6 +96,17 @@ local function handleZombieDeletion()
             until not Success
 
             EndFindPed(Handler)
+
+            -- Respawn de zombis si hay menos de MAX_ZOMBIES
+            if zombieCount < MAX_ZOMBIES then
+                Citizen.Wait(ZOMBIE_RESPAWN_TIME) -- Esperar antes de respawn
+                -- Lógica para crear un nuevo zombi
+                local newZombie = CreatePed(4, GetHashKey('a_m_m_zombie_01'), zone.x, zone.y, zone.z, 0.0, true, true)
+                SetPedAsEnemy(newZombie, true) -- Hacer que el zombi sea agresivo
+                SetPedRelationshipGroupHash(newZombie, GetHashKey('ZOMBIE'))
+                SetEntityHealth(newZombie, 200)
+                DecorSetBool(newZombie, 'RegisterZombie', true)
+            end
         end
     end
 end
@@ -121,7 +137,7 @@ local function handleZombieBehavior()
                     DecorSetBool(Zombie, 'RegisterZombie', true)
                 end
 
-                -- Comportamiento del zombie
+                -- Comportamiento del zombi
                 SetPedRagdollBlockingFlags(Zombie, 1)
                 SetPedCanRagdollFromPlayerImpact(Zombie, false)
                 SetPedSuffersCriticalHits(Zombie, true)
