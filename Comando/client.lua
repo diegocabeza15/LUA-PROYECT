@@ -8,14 +8,15 @@ local comandos = {
 }
 
 -- Función para mostrar la ayuda en un panel personalizado
-local function MostrarAyuda(source)
+local function MostrarAyuda()
     local comandosTexto = "" -- Cambiado para usar una lista desordenada
     for _, comando in ipairs(comandos) do
         comandosTexto = comandosTexto .. "<li><kbd>" .. comando.nombre .. "</kbd><span>" .. comando.descripcion .. "<span></li>" -- Cambiado para usar <li>
     end
    
     -- Enviar mensaje al NUI para mostrar el panel solo al jugador que ejecutó el comando
-    TriggerClientEvent('showCommands', source, comandosTexto) -- Usar TriggerClientEvent
+    SendNUIMessage({ type = "showCommands", commands = comandosTexto }) -- Usar SendNUIMessage
+    SetNuiFocus(true, true) -- Habilitar el enfoque en el NUI
 end
 
 -- Función para curar al jugador
@@ -113,7 +114,7 @@ end
 
 
 RegisterCommand("ayuda", function(source)
-    MostrarAyuda(source)
+    MostrarAyuda() -- Llamar a la función sin pasar source
 end, false)
 
 RegisterCommand("heal", function()
