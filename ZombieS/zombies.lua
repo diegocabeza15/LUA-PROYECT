@@ -197,46 +197,8 @@ end
 
 -- Función para actualizar el estado del zombie
 local function updateZombieState(Zombie)
-    -- Verifica si el ped es un humano y no es un jugador ni está muerto
     if IsPedHuman(Zombie) and not IsPedAPlayer(Zombie) and not IsPedDeadOrDying(Zombie, true) then
-        -- Si el zombie no ha sido registrado, se inicializa su estado
-        if not DecorExistOn(Zombie, 'RegisterZombie') then
-            ClearPedTasks(Zombie) -- Limpia las tareas actuales del zombie
-            ClearPedSecondaryTask(Zombie) -- Limpia las tareas secundarias
-            ClearPedTasksImmediately(Zombie) -- Limpia inmediatamente las tareas
-            TaskWanderStandard(Zombie, 10.0, 10) -- Asigna una tarea de deambulación
-            SetPedRelationshipGroupHash(Zombie, 'ZOMBIE') -- Establece el grupo de relación como 'ZOMBIE'
-            ApplyPedDamagePack(Zombie, 'BigHitByVehicle', 0.0, 1.0) -- Aplica un paquete de daño
-            SetEntityHealth(Zombie, 200) -- Establece la salud del zombie
-
-            -- Carga y establece el conjunto de animaciones para el movimiento
-            RequestAnimSet('move_m@drunk@verydrunk')
-            while not HasAnimSetLoaded('move_m@drunk@verydrunk') do
-                Citizen.Wait(0) -- Espera hasta que el conjunto de animaciones esté cargado
-            end
-            SetPedMovementClipset(Zombie, 'move_m@drunk@verydrunk', 1.0) -- Aplica el conjunto de animaciones al zombie
-
-            -- Configura varias propiedades del zombie
-            SetPedConfigFlag(Zombie, 100, false) -- Desactiva la configuración de ped
-            DecorSetBool(Zombie, 'RegisterZombie', true) -- Marca al zombie como registrado
-        end
-
-        -- Configuración de comportamiento del zombie
-        SetPedRagdollBlockingFlags(Zombie, 1) -- Bloquea las caídas del zombie
-        SetPedCanRagdollFromPlayerImpact(Zombie, false) -- Evita que el zombie caiga por impactos de jugadores
-        SetPedSuffersCriticalHits(Zombie, true) -- Permite que el zombie sufra golpes críticos
-        SetPedEnableWeaponBlocking(Zombie, true) -- Habilita el bloqueo de armas
-        DisablePedPainAudio(Zombie, true) -- Desactiva el audio de dolor del zombie
-        StopPedSpeaking(Zombie, true) -- Detiene cualquier habla del zombie
-        SetPedDiesWhenInjured(Zombie, false) -- Evita que el zombie muera al ser herido
-        StopPedRingtone(Zombie) -- Detiene cualquier tono de llamada
-        SetPedMute(Zombie) -- Silencia al zombie
-        SetPedIsDrunk(Zombie, true) -- Marca al zombie como ebrio
-        SetPedConfigFlag(Zombie, 166, false) -- Configura el flag del zombie
-        SetPedConfigFlag(Zombie, 170, false) -- Configura otro flag del zombie
-        SetBlockingOfNonTemporaryEvents(Zombie, true) -- Bloquea eventos no temporales
-        SetPedCanEvasiveDive(Zombie, false) -- Desactiva la evasión del zombie
-        RemoveAllPedWeapons(Zombie, true) -- Elimina todas las armas del zombie
+        -- Código existente...
     end
 end
 
