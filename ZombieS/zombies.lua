@@ -38,14 +38,14 @@ end)
 
 Citizen.CreateThread(function()-- Solo funcionará en su propio bucle while
     while true do
-        Citizen.Wait(0)
+        Citizen.Wait(100) -- Aumentar el tiempo de espera
 
-        Shooting = IsPedShooting(PlayerPedId()) -- Optimización: asignación directa
+        Shooting = IsPedShooting(PlayerPedId())
+        Running = IsPedSprinting(PlayerPedId()) or IsPedRunning(PlayerPedId())
+
         if Shooting then
             Citizen.Wait(5000)
         end
-
-        Running = IsPedSprinting(PlayerPedId()) or IsPedRunning(PlayerPedId()) -- Optimización: asignación directa
     end
 end)
 
@@ -118,22 +118,27 @@ end)
 
 -- Función para inicializar el estado del zombie
 local function initializeZombie(Zombie)
-    ClearPedTasks(Zombie)
-    ClearPedSecondaryTask(Zombie)
-    ClearPedTasksImmediately(Zombie)
-    TaskWanderStandard(Zombie, 10.0, 10)
-    SetPedRelationshipGroupHash(Zombie, 'ZOMBIE')
-    ApplyPedDamagePack(Zombie, 'BigHitByVehicle', 0.0, 1.0)
-    SetEntityHealth(Zombie, 200)
+    if currentZombies < maxZombies then
+        ClearPedTasks(Zombie)
+        ClearPedSecondaryTask(Zombie)
+        ClearPedTasksImmediately(Zombie)
+        TaskWanderStandard(Zombie, 10.0, 10)
+        SetPedRelationshipGroupHash(Zombie, 'ZOMBIE')
+        ApplyPedDamagePack(Zombie, 'BigHitByVehicle', 0.0, 1.0)
+        SetEntityHealth(Zombie, 200)
 
-    RequestAnimSet('move_m@drunk@verydrunk')
-    while not HasAnimSetLoaded('move_m@drunk@verydrunk') do
-        Citizen.Wait(0)
+        RequestAnimSet('move_m@drunk@verydrunk')
+        while not HasAnimSetLoaded('move_m@drunk@verydrunk') do
+            Citizen.Wait(0)
+        end
+        SetPedMovementClipset(Zombie, 'move_m@drunk@verydrunk', 1.0)
+
+        SetPedConfigFlag(Zombie, 100, false)
+        DecorSetBool(Zombie, 'RegisterZombie', true)
+        currentZombies = currentZombies + 1
+    else
+        DeleteEntity(Zombie) -- Elimina el zombie si se excede el límite
     end
-    SetPedMovementClipset(Zombie, 'move_m@drunk@verydrunk', 1.0)
-
-    SetPedConfigFlag(Zombie, 100, false)
-    DecorSetBool(Zombie, 'RegisterZombie', true)
 end
 
 -- Función para manejar el comportamiento del zombie
@@ -153,6 +158,10 @@ local function handleZombieBehavior(Zombie)
     SetBlockingOfNonTemporaryEvents(Zombie, true)
     SetPedCanEvasiveDive(Zombie, false)
     RemoveAllPedWeapons(Zombie, true)
+
+    if math.random() < 0.1 then -- 10% de probabilidad de cambiar de dirección
+        TaskWanderStandard(Zombie, 10.0, 10)
+    end
 end
 
 -- Función para obtener la distancia objetivo
@@ -229,4 +238,28 @@ local function updateZombieState(Zombie)
         SetPedCanEvasiveDive(Zombie, false) -- Desactiva la evasión del zombie
         RemoveAllPedWeapons(Zombie, true) -- Elimina todas las armas del zombie
     end
+end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        local distanceToSafeZone = #(playerCoords - vector3(450.5966, -998.9636, 28.4284)) -- Ejemplo con la primera zona segura
+
+        if distanceToSafeZone < 100 then
+            SetPedDensityMultiplierThisFrame(1.0)
+            SetVehicleDensityMultiplierThisFrame(1.0)
+        else
+            SetPedDensityMultiplierThisFrame(0.0)
+            SetVehicleDensityMultiplierThisFrame(0.0)
+        end
+    end
+end)
+
+local maxZombies = 50
+local currentZombies = 0
+
+function handleZombieDeath(Zombie)
+    currentZombies = currentZombies - 1
 end
