@@ -35,12 +35,15 @@ end)
 -- Función para verificar si el jugador está siendo observado por cámaras
 function IsPlayerBeingWatched(ped)
     local cameraModels = {
-        'prop_cctv_cam_01a',
-        'prop_cctv_cam_01b',
-        'prop_cctv_cam_02a',
-        'prop_cctv_cam_03a',
-        'prop_cctv_cam_04a',
-        'prop_cctv_cam_05a'
+        "prop_cctv_cam_01a",
+        "prop_cctv_cam_01b",
+        "prop_cctv_cam_02a",
+        "prop_cctv_cam_03a",
+        "prop_cctv_cam_04a",
+        "prop_cctv_cam_04b",
+        "prop_v_cam_01",
+        "prop_v_cam_02",
+        "prop_v_cam_03"
     }
     
     local playerCoords = GetEntityCoords(ped)
