@@ -24,7 +24,7 @@ local function MostrarAyuda()
     -- Cerrar el panel después de 5 segundos
     SetTimeout(1000, function()
         SetNuiFocus(false, false) -- Deshabilitar el enfoque en el NUI
-        SendNUIMessage({ type = "hideCommands" }) -- Enviar mensaje para ocultar el panel
+        SendNUIMessage({ type = "close" }) -- Enviar mensaje para ocultar el panel
     end)
 end
 
