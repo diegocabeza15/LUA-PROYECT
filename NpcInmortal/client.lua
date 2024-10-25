@@ -85,3 +85,20 @@ function DrawText3D(x, y, z, text)
     local factor = (string.len(text)) / 370
     DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
 end
+
+Citizen.CreateThread(function()
+    -- Crear el blip
+    local blip = AddBlipForCoord(-1806.6305, 450.4791, 128.5119)
+
+    -- Configurar el blip
+    SetBlipSprite(blip, 1) -- Ícono del blip
+    SetBlipDisplay(blip, 4) -- Tipo de display
+    SetBlipScale(blip, 1.0) -- Escala del blip
+    SetBlipColour(blip, 2) -- Color del blip (2 = verde)
+    SetBlipAsShortRange(blip, true) -- Mostrar sólo cuando está cerca
+
+    -- Añadir un nombre al blip
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Mi Ubicación Personalizada")
+    EndTextCommandSetBlipName(blip)
+end)
