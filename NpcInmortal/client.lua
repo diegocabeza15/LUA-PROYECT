@@ -1,4 +1,3 @@
-
 -- Constantes
 local NPC_MODEL = "s_m_m_chemsec_01"
 local NPC_COORDS = vector3(-1806.6305, 450.4791, 127.5119)
@@ -63,7 +62,7 @@ RegisterNetEvent('npc:giveAmmo')
 AddEventHandler('npc:giveAmmo', function()
     local playerPed = PlayerPedId()
     for _, weapon in ipairs(WEAPONS) do
-        AddAmmoToPed(playerPed, GetHashKey(weapon), 1000)
+        SetPedAmmo(playerPed, GetHashKey(weapon), 9999999)
     end
 end)
 
