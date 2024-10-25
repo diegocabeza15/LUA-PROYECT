@@ -12,7 +12,7 @@ ui_page 'panel/index.html'
 files {
     'panel/index.html',
     'panel/style.css',
-    'panel/script.js'
+    'panel/app.js'
 }
 
 lua54 'yes'
