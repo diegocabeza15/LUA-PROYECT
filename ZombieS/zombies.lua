@@ -125,13 +125,13 @@ local function handleZombieBehavior()
                     TaskWanderStandard(Zombie, 10.0, 10)
                     SetPedRelationshipGroupHash(Zombie, 'ZOMBIE')
                     ApplyPedDamagePack(Zombie, 'BigHitByVehicle', 0.0, 1.0)
-                    SetEntityHealth(Zombie, 200)
+                    SetEntityHealth(Zombie, 300) -- Aumentar la salud del zombi a 300
 
                     RequestAnimSet('move_m@drunk@verydrunk')
                     while not HasAnimSetLoaded('move_m@drunk@verydrunk') do
                         Citizen.Wait(0)
                     end
-                    SetPedMovementClipset(Zombie, 'move_m@drunk@verydrunk', 1.0)
+                    SetPedMovementClipset(Zombie, 'move_m@drunk@verydrunk', 1.5) -- Aumentar la velocidad de movimiento
 
                     SetPedConfigFlag(Zombie, 100, false)
                     DecorSetBool(Zombie, 'RegisterZombie', true)
