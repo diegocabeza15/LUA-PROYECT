@@ -9,6 +9,11 @@ Citizen.CreateThread(function()
         -- Verificar si el jugador está siendo observado por cámaras
         local isObservedByCamera = IsPlayerBeingWatched(playerPed)
         
+        if isObservedByCamera then
+            -- Mostrar mensaje cuando la cámara detecta al jugador
+            ShowNotification("La cámara te está observando")
+        end
+        
         -- Verificar si el jugador está disparando
         local isShooting = IsPedShooting(playerPed)
         
@@ -55,4 +60,11 @@ function IsPlayerBeingWatched(ped)
     end
     
     return false
+end
+
+-- Función para mostrar notificación
+function ShowNotification(message)
+    SetNotificationTextEntry("STRING")
+    AddTextComponentString(message)
+    DrawNotification(false, false)
 end
