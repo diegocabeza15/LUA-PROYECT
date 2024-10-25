@@ -89,7 +89,7 @@ Citizen.CreateThread(function()
                     "Sistema de Vigilancia",
                     "Información",
                     "No hay cámaras observándote",
-                    "CHAR_SOCIAL_CLUB", -- Icono genérico
+                    "CHAR_GANGAPP", -- Icono genérico
                     false, -- Sin flash
                     4 -- Tipo de notificación (4 = información)
                 )
