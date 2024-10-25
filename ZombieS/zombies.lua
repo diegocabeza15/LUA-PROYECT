@@ -198,7 +198,17 @@ end
 -- Función para actualizar el estado del zombie
 local function updateZombieState(Zombie)
     if IsPedHuman(Zombie) and not IsPedAPlayer(Zombie) and not IsPedDeadOrDying(Zombie, true) then
-        -- Código existente...
+        -- Actualizar el comportamiento del zombie
+        if not IsPedInAnyVehicle(PlayerPedId(), false) then
+            local PlayerCoords = GetEntityCoords(PlayerPedId())
+            local ZombieCoords = GetEntityCoords(Zombie)
+            local distance = #(PlayerCoords - ZombieCoords)
+
+            -- Si el jugador está cerca, el zombie lo sigue
+            if distance < 30.0 then
+                TaskGoToEntity(Zombie, PlayerPedId(), -1, 0.0, 1.0, 1073741824, 0)
+            end
+        end
     end
 end
 
