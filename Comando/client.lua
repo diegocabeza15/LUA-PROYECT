@@ -11,7 +11,7 @@ local comandos = {
 local function MostrarAyuda()
     local comandosTexto = "" -- Cambiado para usar una lista desordenada
     for _, comando in ipairs(comandos) do
-        comandosTexto = comandosTexto .. "<li>" .. comando.nombre .. " - " .. comando.descripcion .. "</li>" -- Cambiado para usar <li>
+        comandosTexto = comandosTexto .. "<li><kbd>" .. comando.nombre .. "</kbd><span>" .. comando.descripcion .. "<span></li>" -- Cambiado para usar <li>
     end
    
     -- Enviar mensaje al NUI para mostrar el panel
@@ -22,7 +22,7 @@ local function MostrarAyuda()
     })
 
     -- Cerrar el panel después de 5 segundos
-    SetTimeout(5000, function()
+    SetTimeout(1000, function()
         SetNuiFocus(false, false) -- Deshabilitar el enfoque en el NUI
         SendNUIMessage({ type = "hideCommands" }) -- Enviar mensaje para ocultar el panel
     end)

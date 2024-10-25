@@ -1,12 +1,12 @@
 window.addEventListener('message', function (event) {
     if (event.data.type === "showCommands") {
-        document.getElementById("comandos").innerHTML = event.data.commands; // Cambiado a innerHTML para permitir etiquetas HTML
-
-        // Cerrar el panel automáticamente después de 5 segundos
+        document.getElementById("comandos").innerHTML = event.data.commands;
+        document.getElementById("modal").classList.remove('hidden')
         setTimeout(function () {
-            // Enviar un mensaje para cerrar el panel
             window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } }));
-        }, 5000); // 5000 milisegundos = 5 segundos
+        }, 1000);
+    } else if (event.data.type === "close") { // Añadir manejo para el cierre
+        document.getElementById("modal").classList.add('hidden'); // Ocultar el modal
     }
 });
 
