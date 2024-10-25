@@ -4,9 +4,15 @@ window.addEventListener('message', function (event) {
         document.getElementById("modal").classList.remove('hidden')
         setTimeout(function () {
             window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } }));
-        }, 1000);
-    } else if (event.data.type === "close") { // Añadir manejo para el cierre
+        }, 60000);
+    }
+
+    if (event.data.type === "close") { // Añadir manejo para el cierre
         document.getElementById("modal").classList.add('hidden'); // Ocultar el modal
+        return window.dispatchEvent(new MessageEvent('message', { data: { type: 'focusLost' } }));
+    }
+    if (event.data.type === "focusLost") {
+        document.body.style.backgroundColor = 'rgba(255, 255, 255, 1)';
     }
 });
 
