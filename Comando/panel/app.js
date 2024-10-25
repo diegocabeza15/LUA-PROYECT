@@ -16,7 +16,7 @@ window.addEventListener('message', function (event) {
 });
 
 // Añadir un evento para el botón de cerrar
-const modal = querySelector("section")
+const modal = document.querySelector("section")
 const closeButton = document.querySelector('#closeButton');
 closeButton.addEventListener('click', (e) => {
     window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } })); // Llamar al evento de cierre
