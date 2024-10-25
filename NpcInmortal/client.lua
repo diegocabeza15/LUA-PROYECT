@@ -1,67 +1,73 @@
--- client.lua
-Citizen.CreateThread(function()
-    local npcHash = GetHashKey("s_m_m_chemsec_01")
-    RequestModel(npcHash)
 
-    while not HasModelLoaded(npcHash) do
-        Wait(1)
-    end
+-- Constantes
+local NPC_MODEL = "s_m_m_chemsec_01"
+local NPC_COORDS = vector3(-1806.6305, 450.4791, 127.5119)
+local NPC_HEADING = 356.400
+local INTERACTION_DISTANCE = 2.0
+local WEAPONS = {
+    "WEAPON_PISTOLXM3", "WEAPON_COMBATSHOTGUN", "WEAPON_COMBATPISTOL",
+    "WEAPON_SMG", "WEAPON_NIGHTSTICK", "WEAPON_CARBINERIFLE"
+}
+
+-- Función para crear el NPC
+local function CreateInmortalNPC()
+    local npcHash = GetHashKey(NPC_MODEL)
+    RequestModel(npcHash)
+    while not HasModelLoaded(npcHash) do Wait(1) end
     
-    local npc = CreatePed(4, npcHash, -1806.6305, 450.4791, 127.5119, 356.400, false, true) -- Bajamos el NPC más
+    local npc = CreatePed(4, npcHash, NPC_COORDS, NPC_HEADING, false, true)
     SetEntityAsMissionEntity(npc, true, true)
     FreezeEntityPosition(npc, true)
     SetEntityInvincible(npc, true)
     SetBlockingOfNonTemporaryEvents(npc, true)
     
+    return npc
+end
+
+-- Función principal
+Citizen.CreateThread(function()
+    local npc = CreateInmortalNPC()
+    
     while true do
         Citizen.Wait(0)
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        local distance = #(playerCoords - NPC_COORDS)
         
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
-        local npcCoords = GetEntityCoords(npc)
-        local distance = GetDistanceBetweenCoords(playerCoords, npcCoords, true)
-        
-        if distance < 2.0 then
-            DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z + 1.0, "Presiona E para interactuar")
+        if distance < INTERACTION_DISTANCE then
+            DrawText3D(NPC_COORDS.x, NPC_COORDS.y, NPC_COORDS.z + 1.0, "Presiona E para interactuar")
             
             if IsControlJustReleased(0, 38) then -- Tecla E
                 TriggerEvent('npc:interact')
             end
+        else
+            Citizen.Wait(500) -- Espera más tiempo si el jugador está lejos
         end
     end
 end)
 
+-- Evento de interacción
 RegisterNetEvent('npc:interact')
 AddEventHandler('npc:interact', function()
     local playerPed = PlayerPedId()
-    local weapons = {
-        "WEAPON_PISTOLXM3",
-        "WEAPON_COMBATSHOTGUN",
-        "WEAPON_COMBATPISTOL",
-        "WEAPON_SMG",
-        "WEAPON_NIGHTSTICK",
-        "WEAPON_CARBINERIFLE", 
-    }
     
-    for _, weapon in ipairs(weapons) do
-        GiveWeaponToPed(playerPed, GetHashKey(weapon),500w, false, true)
+    for _, weapon in ipairs(WEAPONS) do
+        GiveWeaponToPed(playerPed, GetHashKey(weapon), 500, false, true)
     end
     
     TriggerEvent('chat:addMessage', { args = { "NPC", "¡Equípate como un verdadero guerrero!" } })
     TriggerServerEvent('npc:giveAmmo')
 end)
 
+-- Evento para dar munición
 RegisterNetEvent('npc:giveAmmo')
 AddEventHandler('npc:giveAmmo', function()
     local playerPed = PlayerPedId()
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_PISTOLXM3"), 1000)
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_COMBATSHOTGUN"), 1000)
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_COMBATPISTOL"), 1000)
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_SMG"), 1000)
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_NIGHTSTICK"), 1000)
-    AddAmmoToPed(playerPed, GetHashKey("WEAPON_CARBINERIFLE"), 1000)
+    for _, weapon in ipairs(WEAPONS) do
+        AddAmmoToPed(playerPed, GetHashKey(weapon), 1000)
+    end
 end)
 
+-- Función para dibujar texto 3D (sin cambios)
 function DrawText3D(x, y, z, text)
     local onScreen, _x, _y = World3dToScreen2d(x, y, z)
     local px, py, pz = table.unpack(GetGameplayCamCoords())
