@@ -62,7 +62,10 @@ RegisterNetEvent('npc:giveAmmo')
 AddEventHandler('npc:giveAmmo', function()
     local playerPed = PlayerPedId()
     for _, weapon in ipairs(WEAPONS) do
-        SetPedAmmo(playerPed, GetHashKey(weapon), 9999999)
+        local weaponHash = GetHashKey(weapon)
+        local maxAmmo = GetMaxAmmoInClip(playerPed, weaponHash, true)
+        SetPedAmmo(playerPed, weaponHash, maxAmmo)
+        AddAmmoToPed(playerPed, weaponHash, maxAmmo * 10)
     end
 end)
 
