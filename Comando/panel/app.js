@@ -1,15 +1,19 @@
 window.addEventListener('message', function (event) {
+    let closeTimeout;
     if (event.data.type === "showCommands") {
         document.getElementById("comandos").innerHTML = event.data.commands;
         document.getElementById("modal").classList.remove('hidden');
-        setTimeout(function () {
-            window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } })); // Cerrar automáticamente después de 60 segundos
+        closeTimeout = setTimeout(function () {
+            if (!document.getElementById("modal").classList.contains('hidden')) {
+                window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } }));
+            }
         }, 60000);
     }
 
-    if (event.data.type === "close") { // Añadir manejo para el cierre
-        document.getElementById("modal").classList.add('hidden'); // Ocultar el modal
-        return window.dispatchEvent(new MessageEvent('message', { data: { type: 'focusLost' } })); // Enviar evento de enfoque perdido
+    if (event.data.type === "close") {
+        clearTimeout(closeTimeout); // Limpiar el timeout al cerrar
+        document.getElementById("modal").classList.add('hidden');
+        return window.dispatchEvent(new MessageEvent('message', { data: { type: 'focusLost' } }));
     }
     if (event.data.type === "focusLost") {
         document.body.style.backgroundColor = 'rgba(0, 0, 0, 0)';
