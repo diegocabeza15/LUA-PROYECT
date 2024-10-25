@@ -3,23 +3,29 @@ local comandos = {
     {nombre = "/ayuda", descripcion = "Muestra esta lista de comandos"},
     {nombre = "/heal", descripcion = "Restaurar la salud del jugador"},
     {nombre = "/tpm", descripcion = "Teletransportarse al marcador en el mapa"},
-    {nombre = "/recargar", descripcion = "Recargar todas las armas del jugador"},
-    {nombre = "/restuarar",descripcion= "Te lo deja ready para pistear"}
+    {nombre = "/ref", descripcion = "Recargar todas las armas del jugador"},
+    {nombre = "/rest",descripcion= "Te lo deja ready para pistear"}
 }
 
 -- Función para mostrar la ayuda en un panel personalizado
 local function MostrarAyuda()
-    local comandosTexto = "Lista de comandos disponibles:\n"
+    local comandosTexto = "" -- Cambiado para usar una lista desordenada
     for _, comando in ipairs(comandos) do
-        comandosTexto = comandosTexto .. comando.nombre .. " - " .. comando.descripcion .. "\n"
+        comandosTexto = comandosTexto .. "<li>" .. comando.nombre .. " - " .. comando.descripcion .. "</li>" -- Cambiado para usar <li>
     end
-
+   
     -- Enviar mensaje al NUI para mostrar el panel
     SetNuiFocus(true, true) -- Habilitar el enfoque en el NUI
     SendNUIMessage({
         type = "showCommands",
         commands = comandosTexto
     })
+
+    -- Cerrar el panel después de 5 segundos
+    SetTimeout(5000, function()
+        SetNuiFocus(false, false) -- Deshabilitar el enfoque en el NUI
+        SendNUIMessage({ type = "hideCommands" }) -- Enviar mensaje para ocultar el panel
+    end)
 end
 
 -- Función para curar al jugador
@@ -75,8 +81,8 @@ local function RecargarArmas()
     for i = 1, 9 do -- Recorre todas las categorías de armas
         local _, hash = GetCurrentPedWeapon(jugador, true)
         if hash ~= GetHashKey("WEAPON_UNARMED") then
-            local maxAmmo = GetMaxAmmoInClip(jugador, hash, true)
-            SetPedAmmo(jugador, hash, maxAmmo)
+            local maxAmmo = GetMaxAmmo(jugador, hash) -- Obtener la cantidad máxima de municiones
+            SetPedAmmo(jugador, hash, maxAmmo) -- Establecer la munición al máximo
         end
         
         -- Cambiar a la siguiente arma en el inventario
@@ -88,7 +94,7 @@ local function RecargarArmas()
     TriggerEvent('chat:addMessage', {
         color = {0, 255, 0},
         multiline = true,
-        args = {"SISTEMA", "Todas tus armas han sido recargadas."}
+        args = {"SISTEMA", "Todas tus armas han sido recargadas al máximo."}
     })
 end
 

@@ -1,6 +1,6 @@
 window.addEventListener('message', function (event) {
     if (event.data.type === "showCommands") {
-        document.getElementById("comandos").innerText = event.data.commands;
+        document.getElementById("comandos").innerHTML = event.data.commands; // Cambiado a innerHTML para permitir etiquetas HTML
 
         // Cerrar el panel automáticamente después de 5 segundos
         setTimeout(function () {
@@ -10,4 +10,8 @@ window.addEventListener('message', function (event) {
     }
 });
 
-// Update
+// Crear un botón para cerrar el panel
+const closeButton = document.querySelector('#closeButton')
+closeButton.onclick = function () {
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } }));
+};
