@@ -136,9 +136,11 @@ end, false)
 
 -- Evento para cerrar el panel
 RegisterNUICallback('close', function(data, cb)
-    SetNuiFocus(false, false)
-    EnableAllControlActions(0) 
+    print("Cerrando modal...")
+    SetNuiFocus(false, false) -- Desactivar el enfoque en el NUI
+    EnableAllControlActions(0) -- Habilitar todos los controles
+    Citizen.Wait(100) -- Esperar un momento
+    print("Modal cerrado")
     cb('ok')
 end)
-
 

@@ -5,7 +5,8 @@ window.addEventListener("message", function (event) {
   }
   if (event.data.type === 'close') {
     // Añadir manejo para el cierre
-    document.getElementById("modal").classList.add("hidden"); // Ocultar el modal
+    document.getElementById("modal").classList.add("hidden");
+    setNuiFocus(false, false) // Ocultar el modal
     return window.dispatchEvent(
       new MessageEvent("message", { data: { type: "focusLost" } })
     ); // Enviar evento de enfoque perdido
