@@ -136,7 +136,7 @@ end, false)
 
 -- Evento para cerrar el panel
 RegisterNUICallback('close', function(data, cb)
-    SetNuiFocus(false, false) -- Deshabilitar el enfoque en el NUI
+    SetNuiFocus(false, true) -- Mantener el enfoque en el NUI
     cb('ok')
 end)
 
