@@ -2,9 +2,6 @@ window.addEventListener('message', function (event) {
     if (event.data.type === "showCommands") {
         document.getElementById("comandos").innerHTML = event.data.commands;
         document.getElementById("modal").classList.remove('hidden');
-        setTimeout(function () {
-            window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } })); // Cerrar automáticamente después de 60 segundos
-        }, 60000);
     }
 
     if (event.data.type === "close") { // Añadir manejo para el cierre
@@ -17,7 +14,9 @@ window.addEventListener('message', function (event) {
 });
 
 // Añadir un evento para el botón de cerrar
+const modal = querySelector("section")
 const closeButton = document.querySelector('#closeButton');
-closeButton.onclick = function () {
+closeButton.addEventListener('click', (e) => {
     window.dispatchEvent(new MessageEvent('message', { data: { type: 'close' } })); // Llamar al evento de cierre
-};
+    modal.classList.add("hidden")
+});
