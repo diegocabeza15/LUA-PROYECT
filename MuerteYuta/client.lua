@@ -29,15 +29,30 @@ end)
 
 -- Función para verificar si el jugador está siendo observado por cámaras
 function IsPlayerBeingWatched(ped)
-    -- Implementa aquí la lógica para detectar si el jugador está en el campo de visión de una cámara
-    -- Esta es una implementación de ejemplo, deberás adaptarla según tu sistema de cámaras
-    local cameraObjects = GetGamePool('CObject')
-    for _, camera in ipairs(cameraObjects) do
-        if GetEntityModel(camera) == GetHashKey('prop_cctv_cam_01a') then -- Ajusta este hash según el modelo de cámara que uses
-            if HasEntityClearLosToEntity(camera, ped, 17) then
-                return true
+    local cameraModels = {
+        'prop_cctv_cam_01a',
+        'prop_cctv_cam_01b',
+        'prop_cctv_cam_02a',
+        'prop_cctv_cam_03a',
+        'prop_cctv_cam_04a',
+        'prop_cctv_cam_05a'
+    }
+    
+    local playerCoords = GetEntityCoords(ped)
+    
+    for _, model in ipairs(cameraModels) do
+        local cameras = GetGamePool('CObject')
+        for _, camera in ipairs(cameras) do
+            if GetEntityModel(camera) == GetHashKey(model) then
+                local cameraCoords = GetEntityCoords(camera)
+                local distance = #(playerCoords - cameraCoords)
+                
+                if distance <= 20.0 and HasEntityClearLosToEntity(camera, ped, 17) then
+                    return true
+                end
             end
         end
     end
+    
     return false
 end
