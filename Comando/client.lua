@@ -125,12 +125,12 @@ RegisterCommand("tpm", function()
     TeleportarAlMarcador()
 end, false)
 
-RegisterCommand("recargar", function()
+RegisterCommand("ref", function()
     RecargarArmas()
 end, false)
 
 
-RegisterCommand("restuarar", function()
+RegisterCommand("rest", function()
     Restuarar()
 end, false)
 
