@@ -125,6 +125,6 @@ Citizen.CreateThread(function()
 
     -- Añadir un nombre al blip
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Mi Ubicación Personalizada")
+    AddTextComponentString("Armas")
     EndTextCommandSetBlipName(blip)
 end)
