@@ -20,7 +20,13 @@ end)
 AddEventHandler('playerSpawned', function()
   local playerPed = PlayerPedId()
   
-  -- Configurar spawn en una ubicación específica
-  local spawnCoords = vector3(-1767.9266, 445.3730, 127.2791, 106.2196) -- Cambia estas coordenadas según lo necesites
-  SetEntityCoords(playerPed, spawnCoords.x, spawnCoords.y, spawnCoords.z, false, false, false, true)
+  -- Definir un conjunto de coordenadas posibles
+  local spawnPoints = vector3(-1806.6305, 450.4791, 127.5119)
+  
+  -- Establecer las coordenadas del jugador
+  SetEntityCoords(playerPed, spawnPoints.x, spawnPoints.y, spawnPoints.z, false, false, false, true)
+
+  -- Equipar un arma blanca (por ejemplo, un cuchillo)
+  local weaponHash = GetHashKey("WEAPON_KNIFE") -- Cambia "WEAPON_KNIFE" por el arma que desees
+  GiveWeaponToPed(playerPed, weaponHash, 1, false, true) -- 1 es la cantidad de munición
 end)

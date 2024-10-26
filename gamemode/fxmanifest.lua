@@ -8,6 +8,8 @@ description 'A basic freeroam gametype that uses the default spawn logic from sp
 resource_type 'gametype' { name = 'Mondongo Land' }
 
 client_script 'basic_client.lua'
+files { 'mapa.lua' } -- Agrega tu archivo de mapa personalizado
 
 game 'common'
 fx_version 'adamant'
+
