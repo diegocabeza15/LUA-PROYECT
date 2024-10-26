@@ -76,8 +76,8 @@ function GenerateEnemies()
 
         local enemy = CreatePed(4, model, enemyPos.x, enemyPos.y, enemyPos.z, 0.0, true, true)
         SetPedArmour(enemy, 100)
-        SetEntityHealth(enemy, 200)
-        GiveWeaponToPed(enemy, weapon, 100, false, true)
+        SetEntityHealth(enemy, 100)
+        GiveWeaponToPed(enemy, weapon, 200, false, true)
         
         -- Configurar relación de enemigos
         SetPedRelationshipGroupHash(enemy, enemyGroup)
