@@ -1,3 +1,4 @@
+-- Variables
 local NPC_MODEL = "s_m_m_chemsec_01"
 local NPC_COORDS = vector3(-1806.6305, 450.4791, 127.5119)
 local NPC_HEADING = 356.400
@@ -16,7 +17,9 @@ local WEAPONS = {
 local function CreateInmortalNPC()
     local npcHash = GetHashKey(NPC_MODEL)
     RequestModel(npcHash)
-    while not HasModelLoaded(npcHash) do Wait(1) end
+    while not HasModelLoaded(npcHash) do 
+        Citizen.Wait(1) 
+    end
     
     local npc = CreatePed(4, npcHash, NPC_COORDS, NPC_HEADING, false, true)
     SetEntityAsMissionEntity(npc, true, true)
@@ -57,12 +60,12 @@ AddEventHandler('npc:interact', function()
     -- Dar armas del array o munición si ya tiene el arma
     for _, weapon in ipairs(WEAPONS) do
         local weaponHash = GetHashKey(weapon)
-        if not HasPedGotWeapon(playerPed, weaponHash, false) then
-            GiveWeaponToPed(playerPed, weaponHash, 500, false, true)
-            weaponsGiven = weaponsGiven + 1 -- Incrementar el contador
-        else
+        if HasPedGotWeapon(playerPed, weaponHash, false) then
             local maxAmmo = GetMaxAmmoInClip(playerPed, weaponHash, true)
             AddAmmoToPed(playerPed, weaponHash, maxAmmo * 10) -- Otorgar munición
+        else
+            GiveWeaponToPed(playerPed, weaponHash, 500, false, true)
+            weaponsGiven = weaponsGiven + 1 -- Incrementar el contador
         end
     end
 
@@ -95,16 +98,18 @@ function DrawText3D(x, y, z, text)
     local onScreen, _x, _y = World3dToScreen2d(x, y, z)
     local px, py, pz = table.unpack(GetGameplayCamCoords())
     
-    SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 0, 112, 255)
-    SetTextEntry("STRING")
-    SetTextCentre(1)
-    AddTextComponentString(text)
-    DrawText(_x, _y)
-    local factor = (string.len(text)) / 370
-    DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
+    if onScreen then
+        SetTextScale(0.35, 0.35)
+        SetTextFont(4)
+        SetTextProportional(1)
+        SetTextColour(255, 0, 112, 255)
+        SetTextEntry("STRING")
+        SetTextCentre(1)
+        AddTextComponentString(text)
+        DrawText(_x, _y)
+        local factor = (string.len(text)) / 370
+        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
+    end
 end
 
 -- Crear el blip
