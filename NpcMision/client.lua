@@ -159,7 +159,7 @@ function ShowDeliveryCheckpoint()
     Citizen.CreateThread(function()
         while vehicleStolen do
             Citizen.Wait(0)
-            DrawMarker(1, deliveryPoint.x, deliveryPoint.y, deliveryPoint.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 255, 255, 200, false, true, 2, nil, nil, false)
+            DrawMarker(1, deliveryPoint.x, deliveryPoint.y, deliveryPoint.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 255, 255, 200, false, true, 2, nil, nil, false)  -- Se agregó un argumento adicional
         end
     end)
 end
