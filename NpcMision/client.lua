@@ -36,8 +36,8 @@ Citizen.CreateThread(function()
             DrawMarker(1, targetVehicle.x, targetVehicle.y, targetVehicle.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.5, 0, 255, 0, 200, false, true, 2, nil, nil, false)
             local vehicleDist = GetDistanceBetweenCoords(playerCoords, targetVehicle.x, targetVehicle.y, targetVehicle.z, true)
             if vehicleDist < 2.0 then
-                DrawText3D(targetVehicle.x, targetVehicle.y, targetVehicle.z + 1.0, "Roba el coche")
-                if IsControlJustReleased(0, 38) then -- E key
+                DrawText3D(targetVehicle.x, targetVehicle.y, targetVehicle.z + 1.0, "Presiona E para robar el coche")
+                if IsPedInVehicle(PlayerPedId(), vehicle, false) then -- Verifica si el jugador está en el vehículo
                     vehicleStolen = true
                     ShowNotification("¡Has robado el vehículo!") -- Mensaje al robar el vehículo
                     RemoveBlip(targetVehicleBlip) -- Asegúrate de que esta línea se ejecute
