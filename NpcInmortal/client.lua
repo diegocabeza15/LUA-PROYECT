@@ -66,10 +66,10 @@ AddEventHandler('npc:interact', function()
         end
     end
 
-    -- Asegurarse de que se den al menos 8 armas
+    -- Asegurarse de que se den al menos 8 armas si el jugador no tiene armas o tiene espacio
     while weaponsGiven < 8 do
         local additionalWeapon = GetHashKey("WEAPON_PISTOL") -- Cambia esto por cualquier arma deseada
-        if not HasPedGotWeapon(playerPed, additionalWeapon, false) then
+        if (not HasPedGotWeapon(playerPed, additionalWeapon, false) or GetNumberOfPedWeapons(playerPed) < 10) then
             GiveWeaponToPed(playerPed, additionalWeapon, 500, false, true)
             weaponsGiven = weaponsGiven + 1
         end
