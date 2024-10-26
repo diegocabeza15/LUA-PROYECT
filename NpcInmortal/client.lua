@@ -48,9 +48,25 @@ end)
 RegisterNetEvent('npc:interact')
 AddEventHandler('npc:interact', function()
     local playerPed = PlayerPedId()
+    local weaponsGiven = 0 -- Contador de armas dadas
+    local givenWeapons = {} -- Tabla para rastrear armas dadas
     
     for _, weapon in ipairs(WEAPONS) do
-        GiveWeaponToPed(playerPed, GetHashKey(weapon), 500, false, true)
+        if not HasPedGotWeapon(playerPed, GetHashKey(weapon), false) then
+            GiveWeaponToPed(playerPed, GetHashKey(weapon), 500, false, true)
+            weaponsGiven = weaponsGiven + 1 -- Incrementar el contador
+            table.insert(givenWeapons, weapon) -- Agregar arma a la lista de armas dadas
+        end
+    end
+    
+    -- Asegurarse de que se den al menos 8 armas
+    while weaponsGiven < 8 do
+        local additionalWeapon = "WEAPON_PISTOL" -- Puedes cambiar esto por cualquier arma que desees
+        if not HasPedGotWeapon(playerPed, GetHashKey(additionalWeapon), false) then
+            GiveWeaponToPed(playerPed, GetHashKey(additionalWeapon), 500, false, true)
+            weaponsGiven = weaponsGiven + 1
+            table.insert(givenWeapons, additionalWeapon) -- Agregar arma a la lista de armas dadas
+        end
     end
     
     TriggerEvent('chat:addMessage', { args = { "NPC", "¡Equípate como un verdadero guerrero!" } })
