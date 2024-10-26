@@ -27,7 +27,7 @@ Citizen.CreateThread(function()
         local distance = GetDistanceBetweenCoords(playerCoords, missionNPC.x, missionNPC.y, missionNPC.z, true)
         if distance < 2.0 then
             DrawText3D(missionNPC.x, missionNPC.y, missionNPC.z + 1.0, "Presiona E para iniciar la misión")
-            if IsControlJustReleased(0, 38) then -- E key
+            if IsControlJustReleased(0, 38) and not missionStarted then -- E key
                 StartMission()
             end
         end
@@ -61,6 +61,7 @@ Citizen.CreateThread(function()
 end)
 
 function StartMission()
+    if missionStarted then return end -- Evitar reiniciar la misión si ya está en curso
     missionStarted = true
     ShowNotification("¡La misión ha comenzado! Ve a robar el coche.") -- Cambiado a notificación
 
