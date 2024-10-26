@@ -86,8 +86,8 @@ function GenerateEnemies()
     end
 
     -- Ajustar relaciones para que no se ataquen entre sí y sean hostiles solo con el jugador
-    SetRelationshipBetweenGroups(1, enemyGroup, enemyGroup)
-    SetRelationshipBetweenGroups(5, enemyGroup, GetHashKey("PLAYER"))
+    SetRelationshipBetweenGroups(1, enemyGroup, enemyGroup)  -- No se atacan entre ellos
+    SetRelationshipBetweenGroups(5, enemyGroup, GetHashKey("PLAYER"))  -- Hostiles con el jugador
 end
 
 -- Detectar jugador cercano y reaccionar
