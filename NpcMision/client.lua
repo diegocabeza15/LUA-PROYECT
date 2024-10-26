@@ -1,4 +1,4 @@
-local missionNPC = { x= -1812.0613, y= 453.500, z= 127.090, heading = 280.400, model = "cs_martinmadrazo" }
+local missionNPC = { x= -1812.0613, y= 453.500, z= 127.300, heading = 280.400, model = "cs_martinmadrazo" }
 local targetVehicle = { x= -2296.4873, y= 374.6071, z= 174.4668, model="adder"} 
 local deliveryPoint = { x= -1795.4498, y= 457.4403, z= 128.3080 }
 
