@@ -1,207 +1,148 @@
 local missionNPC = { x= -1812.0613, y= 453.500, z= 127.300, heading = 280.400, model = "cs_martinmadrazo" }
-local targetVehicle = { x= -2294.8767, y= 375.0648, z= 174.7636, model="mule4"} 
+local targetVehicle = { x= -2294.8767, y= 375.0648, z= 174.7636, model="manchez3"} 
 local deliveryPoint = { x= -1795.4498, y= 457.4403, z= 128.3080 }
 
-local missionStarted = false
-local vehicleStolen = false
-local targetVehicleBlip
-local deliveryPointBlip
+local missionStarted, vehicleStolen = false, false
+local vehicle, vehicleBlip, deliveryPointBlip, npc
+local enemies = {}
+local enemyModels = { "g_m_y_mexgoon_01", "g_m_y_mexgoon_02", "g_m_y_mexgoon_03" }
+local enemyWeapons = { "WEAPON_PISTOL", "WEAPON_MICROSMG" }
 
+-- Crear NPC inmortal y quieto
 Citizen.CreateThread(function()
     RequestModel(GetHashKey(missionNPC.model))
-    while not HasModelLoaded(GetHashKey(missionNPC.model)) do
-        Wait(1)
-    end
+    while not HasModelLoaded(GetHashKey(missionNPC.model)) do Wait(1) end
 
-    local npc = CreatePed(4, GetHashKey(missionNPC.model), missionNPC.x, missionNPC.y, missionNPC.z, missionNPC.heading, false, true)
-    SetEntityAsMissionEntity(npc, true, true)
-    FreezeEntityPosition(npc, true)
+    npc = CreatePed(4, GetHashKey(missionNPC.model), missionNPC.x, missionNPC.y, missionNPC.z, missionNPC.heading, false, true)
     SetEntityInvincible(npc, true)
+    FreezeEntityPosition(npc, true)
     SetBlockingOfNonTemporaryEvents(npc, true)
+end)
 
+-- Iniciar misión al interactuar con NPC
+Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-        DrawMarker(1, missionNPC.x, missionNPC.y, missionNPC.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.5, 255, 0, 0, 200, false, true, 2, nil, nil, false)
-
         local playerCoords = GetEntityCoords(PlayerPedId())
-        local distance = GetDistanceBetweenCoords(playerCoords, missionNPC.x, missionNPC.y, missionNPC.z, true)
-        if distance < 2.0 then
-            DrawText3D(missionNPC.x, missionNPC.y, missionNPC.z + 1.0, "Presiona E para iniciar la misión")
-            if IsControlJustReleased(0, 38) and not missionStarted then -- E key
-                StartMission()
-            end
+        if not missionStarted and #(playerCoords - vector3(missionNPC.x, missionNPC.y, missionNPC.z)) < 2.0 then
+            ShowHelpText("Presiona ~INPUT_CONTEXT~ para iniciar la misión")
+            if IsControlJustReleased(0, 51) then StartMission() end
         end
+    end
+end)
 
-        if missionStarted and not vehicleStolen then
-            if not DoesEntityExist(vehicle) then
-                vehicle, vehicleBlip = CreateVehicleAndBlip(targetVehicle)
-            else
-                local vehicleDist = GetDistanceBetweenCoords(playerCoords, targetVehicle.x, targetVehicle.y, targetVehicle.z, true)
-                DrawMarker(1, targetVehicle.x, targetVehicle.y, targetVehicle.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.5, 0, 255, 0, 200, false, true, 2, nil, nil, false)
-                
-                -- Verificar si el jugador está cerca del vehículo
-                if vehicleDist < 2.0 then
-                    DrawText3D(targetVehicle.x, targetVehicle.y, targetVehicle.z + 1.0, "Robando el coche...")
-                    -- Entrar al vehículo automáticamente
+-- Función para iniciar la misión
+function StartMission()
+    missionStarted = true
+    ShowNotification("¡La misión ha comenzado! Ve a robar el coche.")
+    vehicle, vehicleBlip = CreateVehicleAndBlip(targetVehicle)
+    GenerateEnemies()  -- Generar enemigos iniciales
+end
+
+-- Crear vehículo objetivo y blip
+function CreateVehicleAndBlip(vehicleData)
+    RequestModel(GetHashKey(vehicleData.model))
+    while not HasModelLoaded(GetHashKey(vehicleData.model)) do Wait(1) end
+
+    local veh = CreateVehicle(GetHashKey(vehicleData.model), vehicleData.x, vehicleData.y, vehicleData.z, 0.0, true, false)
+    SetEntityAsMissionEntity(veh, true, true)
+
+    local vehBlip = AddBlipForEntity(veh)
+    SetBlipSprite(vehBlip, 1)
+    SetBlipColour(vehBlip, 3)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Objetivo: Coche")
+    EndTextCommandSetBlipName(vehBlip)
+
+    return veh, vehBlip
+end
+
+-- Generar enemigos
+function GenerateEnemies()
+    for i = 1, 10 do  -- Genera 4 enemigos
+        local enemyPos = { x = targetVehicle.x + math.random(-10, 10), y = targetVehicle.y + math.random(-10, 10), z = targetVehicle.z }
+        local model = GetHashKey(enemyModels[math.random(#enemyModels)])
+        local weapon = GetHashKey(enemyWeapons[math.random(#enemyWeapons)])
+        
+        RequestModel(model)
+        while not HasModelLoaded(model) do Wait(1) end
+        
+        local enemy = CreatePed(4, model, enemyPos.x, enemyPos.y, enemyPos.z, 0.0, true, true)
+        SetPedArmour(enemy, 100)  -- Armadura adicional
+        SetEntityHealth(enemy, 200)  -- Salud aumentada a 200
+        GiveWeaponToPed(enemy, enemyWeapons, 100, false, true) -- SMG como arma
+        TaskCombatPed(enemy, PlayerPedId(), 0, 16)  -- Atacan al jugador
+        table.insert(enemies, enemy)
+    end
+end
+
+-- Monitorear progreso de la misión
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        if missionStarted and DoesEntityExist(vehicle) then
+            local playerCoords = GetEntityCoords(PlayerPedId())
+            if not vehicleStolen and #(playerCoords - vector3(targetVehicle.x, targetVehicle.y, targetVehicle.z)) < 3.0 then
+                ShowHelpText("Presiona ~INPUT_CONTEXT~ para robar el coche")
+                if IsControlJustReleased(0, 38) then
                     TaskEnterVehicle(PlayerPedId(), vehicle, -1, -1, 1.0, 1, 0)
+                    vehicleStolen = true
+                    RemoveBlip(vehicleBlip)
+                    ShowNotification("¡Has robado el vehículo! Llévalo al punto de entrega.")
+                    ShowDeliveryCheckpoint()  -- Mostrar el punto de entrega en el mundo
                 end
             end
 
-            if IsPedInVehicle(PlayerPedId(), vehicle, false) then
-                vehicleStolen = true
-                RemoveBlip(vehicleBlip)
-                ShowNotification("¡Has robado el vehículo!")
-                ShowDeliveryPoint()
-            end
-        end
-
-        if vehicleStolen then
-            DrawMarker(1, deliveryPoint.x, deliveryPoint.y, deliveryPoint.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.5, 0, 0, 255, 200, false, true, 2, nil, nil, false)
-            local deliveryDist = GetDistanceBetweenCoords(playerCoords, deliveryPoint.x, deliveryPoint.y, deliveryPoint.z, true)
-            if deliveryDist < 2.0 then
-                DrawText3D(deliveryPoint.x, deliveryPoint.y, deliveryPoint.z + 1.0, "Entrega el coche")
-                if IsControlJustReleased(0, 38) then -- E key
-                    CompleteMission()
+            if vehicleStolen and IsPedInVehicle(PlayerPedId(), vehicle, false) then
+                if #(playerCoords - vector3(deliveryPoint.x, deliveryPoint.y, deliveryPoint.z)) < 3.0 then
+                    ShowHelpText("Presiona ~INPUT_CONTEXT~ para entregar el vehículo")
+                    if IsControlJustReleased(0, 38) then CompleteMission() end
                 end
             end
         end
     end
 end)
 
-local enemies = {}
-local enemyModels = {
-  "u_m_y_zombie_01",
-		"a_f_m_bevhills_01",
-		"a_f_m_downtown_01",
-		"a_f_m_ktown_01",
-		"a_f_m_skidrow_01",
-		"a_f_m_trampbeac_01",
-		"a_f_y_hiker_01",
-		"a_f_y_rurmeth_01",
-		"a_m_m_afriamer_01",
-		"a_m_m_bevhills_01",
-		"a_m_m_eastsa_01",
-		"a_m_m_farmer_01",
-		"a_m_m_hasjew_01",
-		"a_m_m_hillbilly_01",
-		"a_m_m_mexcntry_01",
-		"a_m_m_rurmeth_01",
-		"a_m_m_tramp_01",
-		"a_m_m_trampbeac_01",
-		"a_m_o_acult_02",
-		"a_m_o_salton_01",
-		"a_m_y_methhead_01",
-		"g_m_m_chemwork_01",
-		"g_m_y_salvagoon_01",
-		"s_f_y_cop_01",
-		"s_m_y_cop_01",
-		"u_m_o_filmnoir",
-		"u_m_y_corpse_01",
-		"u_f_m_corpse_01",
-		"u_f_y_corpse_01",
-		"u_f_y_corpse_02"
-}
+-- Completar misión
+function CompleteMission()
+    missionStarted, vehicleStolen = false, false
+    RemoveBlip(deliveryPointBlip)
+    DeleteEntity(vehicle)
+    ShowNotification("¡Misión completada! Gracias por tu ayuda.")
 
-function StartMission()
-    if missionStarted then return end
-    missionStarted = true
-    ShowNotification("¡La misión ha comenzado! Ve a robar el coche.")
-    vehicle, targetVehicleBlip = CreateVehicleAndBlip(targetVehicle)
+    -- Eliminar enemigos
+    for _, enemy in ipairs(enemies) do
+        if DoesEntityExist(enemy) then DeleteEntity(enemy) end
+    end
+    enemies = {}
+end
 
-    -- Generar enemigos iniciales
-    GenerateEnemies()
-
-    -- Iniciar un temporizador para generar enemigos adicionales
+-- Mostrar checkpoint visible
+function ShowDeliveryCheckpoint()
+    deliveryPointBlip = AddBlipForCoord(deliveryPoint.x, deliveryPoint.y, deliveryPoint.z)
+    SetBlipSprite(deliveryPointBlip, 1)
+    SetBlipColour(deliveryPointBlip, 3)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Punto de entrega")
+    EndTextCommandSetBlipName(deliveryPointBlip)
+    
     Citizen.CreateThread(function()
-        while missionStarted do
-            Wait(30000) -- Esperar 30 segundos antes de generar un nuevo enemigo
-            GenerateEnemies()
+        while vehicleStolen do
+            Citizen.Wait(0)
+            DrawMarker(1, deliveryPoint.x, deliveryPoint.y, deliveryPoint.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.0, 0, 255, 255, 200, false, true, 2, nil, nil, false)
         end
     end)
 end
 
-function GenerateEnemies()
-    local playerCoords = GetEntityCoords(PlayerPedId()) -- Obtener las coordenadas del jugador
-    local newEnemyPosition = {
-        x = playerCoords.x + math.random(-5, 5), -- Generar una nueva posición en un radio de 5 metros
-        y = playerCoords.y + math.random(-5, 5),
-        z = playerCoords.z -- Mantener la misma altura
-    }
-    local enemyModel = enemyModels[math.random(#enemyModels)]
-
-    RequestModel(GetHashKey(enemyModel))
-    while not HasModelLoaded(GetHashKey(enemyModel)) do
-        Wait(1)
-    end
-
-    local ped = CreatePed(4, GetHashKey(enemyModel), newEnemyPosition.x, newEnemyPosition.y, newEnemyPosition.z, 0.0, true, true)
-    SetEntityAsMissionEntity(ped, true, true)
-    TaskCombatPed(ped, PlayerPedId(), 0, 16) -- Hacer que el enemigo ataque al jugador
-    table.insert(enemies, ped) -- Agregar el nuevo enemigo a la lista
-end
-
-function ShowDeliveryPoint()
-    deliveryPointBlip = AddBlipForCoord(deliveryPoint.x, deliveryPoint.y, deliveryPoint.z)
-    SetBlipSprite(deliveryPointBlip, 1)
-    SetBlipColour(deliveryPointBlip, 3)
-    SetBlipAsShortRange(deliveryPointBlip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Punto de entrega")
-    EndTextCommandSetBlipName(deliveryPointBlip)
-end
-
-function CompleteMission()
-    missionStarted = false
-    vehicleStolen = false
-    RemoveBlip(deliveryPointBlip)
-    ShowNotification("¡Misión completada! Gracias por tu ayuda.")
-
-    -- Eliminar enemigos al completar la misión
-    for _, enemy in ipairs(enemies) do
-        if DoesEntityExist(enemy) then
-            DeleteEntity(enemy)
-        end
-    end
-    enemies = {} -- Limpiar la lista de enemigos
-end
-
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-    local px, py, pz = table.unpack(GetGameplayCamCoords())
-
-    SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
-    SetTextCentre(1)
+-- Mostrar texto en pantalla
+function ShowHelpText(text)
+    SetTextComponentFormat("STRING")
     AddTextComponentString(text)
-    DrawText(_x, _y)
-    local factor = (string.len(text)) / 370
-    DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
+    DisplayHelpTextFromStringLabel(0, 0, 1, -1)
 end
 
 function ShowNotification(text)
     SetNotificationTextEntry("STRING")
     AddTextComponentString(text)
     DrawNotification(false, true)
-    Citizen.SetTimeout(5000, function() -- Temporizador de 5 segundos
-        RemoveNotification(GetCurrentNotification()) -- Eliminar la notificación actual
-    end)
-end
-
-function CreateVehicleAndBlip(vehicleData)
-    RequestModel(GetHashKey(vehicleData.model))
-    while not HasModelLoaded(GetHashKey(vehicleData.model)) do
-        Wait(1)
-    end
-    local vehicle = CreateVehicle(GetHashKey(vehicleData.model), vehicleData.x, vehicleData.y, vehicleData.z, 0.0, true, false)
-    SetEntityAsMissionEntity(vehicle, true, true)
-    local vehicleBlip = AddBlipForEntity(vehicle)
-    SetBlipSprite(vehicleBlip, 1)
-    SetBlipColour(vehicleBlip, 3)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Objetivo: Coche")
-    EndTextCommandSetBlipName(vehicleBlip)
-    return vehicle, vehicleBlip
 end
