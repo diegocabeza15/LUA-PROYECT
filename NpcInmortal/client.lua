@@ -1,4 +1,3 @@
--- Constantes
 local NPC_MODEL = "s_m_m_chemsec_01"
 local NPC_COORDS = vector3(-1806.6305, 450.4791, 127.5119)
 local NPC_HEADING = 356.400
@@ -11,13 +10,6 @@ local WEAPONS = {
     "WEAPON_MICROSMG",
     "WEAPON_ASSAULTRIFLE",
     "WEAPON_CARBINERIFLE",
-    "WEAPON_ADVANCEDRIFLE",
-    "WEAPON_MG",
-    "WEAPON_COMBATMG",
-    "WEAPON_PUMPSHOTGUN",
-    "WEAPON_ASSAULTSHOTGUN",
-    "WEAPON_HEAVYSNIPER",
-    "WEAPON_MINIGUN",
 }
 
 -- Función para crear el NPC
@@ -61,26 +53,28 @@ RegisterNetEvent('npc:interact')
 AddEventHandler('npc:interact', function()
     local playerPed = PlayerPedId()
     local weaponsGiven = 0 -- Contador de armas dadas
-    local givenWeapons = {} -- Tabla para rastrear armas dadas
-    
+
+    -- Dar armas del array o munición si ya tiene el arma
     for _, weapon in ipairs(WEAPONS) do
-        if not HasPedGotWeapon(playerPed, GetHashKey(weapon), false) then
-            GiveWeaponToPed(playerPed, GetHashKey(weapon), 500, false, true)
+        local weaponHash = GetHashKey(weapon)
+        if not HasPedGotWeapon(playerPed, weaponHash, false) then
+            GiveWeaponToPed(playerPed, weaponHash, 500, false, true)
             weaponsGiven = weaponsGiven + 1 -- Incrementar el contador
-            table.insert(givenWeapons, weapon) -- Agregar arma a la lista de armas dadas
+        else
+            local maxAmmo = GetMaxAmmoInClip(playerPed, weaponHash, true)
+            AddAmmoToPed(playerPed, weaponHash, maxAmmo * 10) -- Otorgar munición
         end
     end
-    
+
     -- Asegurarse de que se den al menos 8 armas
     while weaponsGiven < 8 do
-        local additionalWeapon = "WEAPON_PISTOL" -- Puedes cambiar esto por cualquier arma que desees
-        if not HasPedGotWeapon(playerPed, GetHashKey(additionalWeapon), false) then
-            GiveWeaponToPed(playerPed, GetHashKey(additionalWeapon), 500, false, true)
+        local additionalWeapon = GetHashKey("WEAPON_PISTOL") -- Cambia esto por cualquier arma deseada
+        if not HasPedGotWeapon(playerPed, additionalWeapon, false) then
+            GiveWeaponToPed(playerPed, additionalWeapon, 500, false, true)
             weaponsGiven = weaponsGiven + 1
-            table.insert(givenWeapons, additionalWeapon) -- Agregar arma a la lista de armas dadas
         end
     end
-    
+
     TriggerEvent('chat:addMessage', { args = { "NPC", "¡Equípate como un verdadero guerrero!" } })
     TriggerServerEvent('npc:giveAmmo')
 end)
@@ -92,12 +86,11 @@ AddEventHandler('npc:giveAmmo', function()
     for _, weapon in ipairs(WEAPONS) do
         local weaponHash = GetHashKey(weapon)
         local maxAmmo = GetMaxAmmoInClip(playerPed, weaponHash, true)
-        SetPedAmmo(playerPed, weaponHash, maxAmmo)
         AddAmmoToPed(playerPed, weaponHash, maxAmmo * 10)
     end
 end)
 
--- Función para dibujar texto 3D (sin cambios)
+-- Función para dibujar texto 3D
 function DrawText3D(x, y, z, text)
     local onScreen, _x, _y = World3dToScreen2d(x, y, z)
     local px, py, pz = table.unpack(GetGameplayCamCoords())
@@ -114,8 +107,8 @@ function DrawText3D(x, y, z, text)
     DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
 end
 
+-- Crear el blip
 Citizen.CreateThread(function()
-    -- Crear el blip
     local blip = AddBlipForCoord(-1806.6305, 450.4791, 128.5119)
 
     -- Configurar el blip
