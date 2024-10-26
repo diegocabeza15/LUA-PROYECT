@@ -39,7 +39,9 @@ Citizen.CreateThread(function()
                 DrawText3D(targetVehicle.x, targetVehicle.y, targetVehicle.z + 1.0, "Roba el coche")
                 if IsControlJustReleased(0, 38) then -- E key
                     vehicleStolen = true
-                    RemoveBlip(targetVehicleBlip)
+                    ShowNotification("¡Has robado el vehículo!") -- Mensaje al robar el vehículo
+                    RemoveBlip(targetVehicleBlip) -- Asegúrate de que esta línea se ejecute
+                    targetVehicleBlip = nil -- Opcional: limpiar la referencia del blip
                     ShowDeliveryPoint()
                 end
             end
@@ -60,7 +62,7 @@ end)
 
 function StartMission()
     missionStarted = true
-    TriggerEvent('chat:addMessage', { args = { "Misión", "¡La misión ha comenzado! Ve a robar el coche." } })
+    ShowNotification("¡La misión ha comenzado! Ve a robar el coche.") -- Cambiado a notificación
 
     -- Añadir blip del vehículo objetivo
     RequestModel(GetHashKey(targetVehicle.model))
@@ -92,7 +94,7 @@ function CompleteMission()
     missionStarted = false
     vehicleStolen = false
     RemoveBlip(deliveryPointBlip)
-    TriggerEvent('chat:addMessage', { args = { "Misión", "¡Misión completada! Gracias por tu ayuda." } })
+    ShowNotification("¡Misión completada! Gracias por tu ayuda.") -- Cambiado a notificación
 end
 
 function DrawText3D(x, y, z, text)
@@ -111,3 +113,11 @@ function DrawText3D(x, y, z, text)
     DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 41, 11, 41, 100)
 end
 
+function ShowNotification(text)
+    SetNotificationTextEntry("STRING")
+    AddTextComponentString(text)
+    DrawNotification(false, true)
+    Citizen.SetTimeout(5000, function() -- Temporizador de 5 segundos
+        RemoveNotification(GetCurrentNotification()) -- Eliminar la notificación actual
+    end)
+end
