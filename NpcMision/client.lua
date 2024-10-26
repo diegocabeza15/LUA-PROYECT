@@ -61,7 +61,7 @@ function CreateVehicleAndBlip(vehicleData)
 end
 
 function GenerateEnemies()
-    local numEnemies = math.random(4, 12) -- Genera entre 4 y 12 enemigos
+    local numEnemies = math.random(4, 8) -- Genera entre 4 y 12 enemigos
     for i = 1, numEnemies do
         local enemyPos = {
             x = targetVehicle.x + math.random(-15, 15),
