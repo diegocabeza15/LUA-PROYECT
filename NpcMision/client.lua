@@ -7,6 +7,9 @@ local vehicle, vehicleBlip, deliveryPointBlip, npc
 local enemies = {}
 local enemyModels = { "g_m_y_mexgoon_01", "g_m_y_mexgoon_02", "g_m_y_mexgoon_03" }
 local enemyWeapons = { "WEAPON_PISTOL", "WEAPON_MICROSMG" }
+local enemyGroup = GetHashKey("EnemyGroup")
+AddRelationshipGroup("EnemyGroup")
+
 
 -- Crear NPC inmortal y quieto
 Citizen.CreateThread(function()
@@ -57,24 +60,51 @@ function CreateVehicleAndBlip(vehicleData)
     return veh, vehBlip
 end
 
--- Generar enemigos
 function GenerateEnemies()
-    for i = 1, 10 do  -- Genera 4 enemigos
-        local enemyPos = { x = targetVehicle.x + math.random(-10, 10), y = targetVehicle.y + math.random(-10, 10), z = targetVehicle.z }
+    local numEnemies = math.random(4, 12) -- Genera entre 4 y 12 enemigos
+    for i = 1, numEnemies do
+        local enemyPos = {
+            x = targetVehicle.x + math.random(-15, 15),
+            y = targetVehicle.y + math.random(-15, 15),
+            z = targetVehicle.z
+        }
         local model = GetHashKey(enemyModels[math.random(#enemyModels)])
         local weapon = GetHashKey(enemyWeapons[math.random(#enemyWeapons)])
-        
+
         RequestModel(model)
         while not HasModelLoaded(model) do Wait(1) end
-        
+
         local enemy = CreatePed(4, model, enemyPos.x, enemyPos.y, enemyPos.z, 0.0, true, true)
-        SetPedArmour(enemy, 100)  -- Armadura adicional
-        SetEntityHealth(enemy, 200)  -- Salud aumentada a 200
-        GiveWeaponToPed(enemy, enemyWeapons, 100, false, true) -- SMG como arma
-        TaskCombatPed(enemy, PlayerPedId(), 0, 16)  -- Atacan al jugador
+        SetPedArmour(enemy, 100)
+        SetEntityHealth(enemy, 200)
+        GiveWeaponToPed(enemy, weapon, 100, false, true)
+        
+        -- Configurar relación de enemigos
+        SetPedRelationshipGroupHash(enemy, enemyGroup)
+        TaskGuardCurrentPosition(enemy, 15.0, 15.0, 1)  -- Guardar posición hasta que detecten al jugador
         table.insert(enemies, enemy)
     end
+
+    -- Ajustar relaciones para que no se ataquen entre sí y sean hostiles solo con el jugador
+    SetRelationshipBetweenGroups(1, enemyGroup, enemyGroup)
+    SetRelationshipBetweenGroups(5, enemyGroup, GetHashKey("PLAYER"))
 end
+
+-- Detectar jugador cercano y reaccionar
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(1000)  -- Revisa cada segundo
+        if missionStarted then
+            for _, enemy in ipairs(enemies) do
+                if DoesEntityExist(enemy) and not IsPedDeadOrDying(enemy, true) then
+                    if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(enemy)) < 15.0 then
+                        TaskCombatPed(enemy, PlayerPedId(), 0, 16)
+                    end
+                end
+            end
+        end
+    end
+end)
 
 -- Monitorear progreso de la misión
 Citizen.CreateThread(function()
